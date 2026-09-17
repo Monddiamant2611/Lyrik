@@ -1,0 +1,7 @@
+import { LyrikWorkshop } from "@/src/games/lyrik/LyrikWorkshop";
+
+export const dynamic = "force-static";
+
+export default function Home() {
+  return <LyrikWorkshop />;
+}

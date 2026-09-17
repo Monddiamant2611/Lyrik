@@ -1,0 +1,37 @@
+export type ReviewChapterId="chapter_01"|"chapter_02"|"chapter_03"|"chapter_04"|"chapter_05";
+export type ReviewTarget=
+ |{kind:"theatre";id:string;label:string;completedChapters:string[]}
+ |{kind:"chapter";id:string;label:string;chapterId:ReviewChapterId;round:number;completion?:boolean}
+ |{kind:"finale";id:string;label:string;mode:"welcome"|"review"|"synthesis"|"book"|"closing"|"complete"};
+
+const chapter=(chapterId:ReviewChapterId,labels:readonly string[]):ReviewTarget[]=>labels.map((label,index)=>{
+ const completion=index===labels.length-1&&/Kapitelabschluss|Abschlussdialog/.test(label);
+ return{kind:"chapter",id:`${chapterId}-${completion?"completion":`round-${index+1}`}`,label,chapterId,round:completion?index:index+1,completion};
+});
+
+export const reviewTargets:ReviewTarget[]=[
+ {kind:"theatre",id:"theatre-initial",label:"Große Bühne · nur Kapitel 1",completedChapters:[]},
+ {kind:"theatre",id:"theatre-after-1",label:"Große Bühne · Kapitel 2 verfügbar",completedChapters:["chapter_01"]},
+ {kind:"theatre",id:"theatre-after-2",label:"Große Bühne · Kapitel 3 verfügbar",completedChapters:["chapter_01","chapter_02"]},
+ {kind:"theatre",id:"theatre-after-3",label:"Große Bühne · Kapitel 4 verfügbar",completedChapters:["chapter_01","chapter_02","chapter_03"]},
+ {kind:"theatre",id:"theatre-after-4",label:"Große Bühne · Kapitel 5 verfügbar",completedChapters:["chapter_01","chapter_02","chapter_03","chapter_04"]},
+ {kind:"theatre",id:"theatre-finale",label:"Große Bühne · Finale verfügbar",completedChapters:["chapter_01","chapter_02","chapter_03","chapter_04","chapter_05"]},
+ ...chapter("chapter_01",["Einstieg","Textsignale lesen","Textbefund und Erschließung","Training A · Kategorien erkennen","Training B · Aussagensicherheit","Training C · Vorgeschichte und Bedingungen","Training D · Textsignal, Befund und Schluss","Training E · Analysefehler erkennen","Werkunabhängige Abschlussprobe","Shakespeare-Regiebuch öffnen","Shakespeare · Situationsanalyse","Shakespeare · Textbeleg verknüpfen","Shakespeare · Transfer","Kapitelabschluss"]),
+ ...chapter("chapter_02",["Einführung","Befund oder Deutung","Direkte und indirekte Charakterisierung üben","Moment oder Muster üben","Textsignale gewichten","Ziel, Motiv und Interesse üben","Gerichtete Beziehungen üben","Selbst- und Fremdbild üben","Werkzeuge am Shakespeare-Text","Juliette im Text","Situatives Verhalten","Ziel, Motiv und Interesse","Beziehungen","Selbst- und Fremdbild","Transfer","Situationen vergleichen","Ensemble rekonstruieren","Kapitelabschluss"]),
+ ...chapter("chapter_03",["Einführung","Dialog als Handlung","Sprachhandlungen üben","Gesprächsziele üben","Gesprächsverlauf","Phasengrenze begründen","Sprache, Wirkung und Funktion","Shakespeare · Gesprächsziele","Romeos Zielveränderung","Sprachhandlung und Reaktion","Gesprächsphasen","Wendepunkt","Sprache am Text","Bühnenhandlung und Inszenierung","Mini-Dialoganalyse","Transfer und Abschluss","Kapitelabschluss"]),
+ ...chapter("chapter_04",["Konfliktinformationen und Ziele","Konfliktarten und Vorgeschichte","Ursache, Bedingung oder nur später","Wissen, Absicht, Deutung und Handlungskurve","Allgemeine Handlungskurve mit Sicherung","Handlung – Reaktion – Veränderung","Wendepunkt mit Davor–Veränderung–Danach","Romeo/Paris: Ausgangslage","Romeo/Paris: Wissen, Absicht und Deutung","Romeo/Paris: Ziele und Belege","Romeo/Paris: Handlungskette","Romeo/Paris: Kausalität","Romeo/Paris: Handlung – Reaktion – Veränderung","Romeo/Paris: Eskalation und Wendepunkt","Inneren Konflikt vorbereiten","Juliette: Situation und Hinführung","Juliettes Konfliktstruktur","Juliette: Abwägung bis zur Ausführung","Juliette: Entscheidung und Ausführung","Juliette: Handlungsalternativen","Konfliktverläufe vergleichen","Vom Textbefund zur Bedeutung","Kapitelabschluss"]),
+ ...chapter("chapter_05",["Beobachtung und Textbefund","Mara/Leon: Analyse, Wirkung und Bedeutung","Prüfbarkeit einer Deutungshypothese","Vorwärts lesen – rückwärts prüfen","Juliette/Capulet: Primärtext und relevante Befunde","Juliette: Belege rückwärts prüfen","Juliette: Gegenbefund","Juliette: Hypothese präzisieren","Juliette: Argumentation bauen","Interpretationsfehler erkennen und reparieren","Mikro- und Makrostruktur","Romeo/Apotheker: Primärtext und Belege","Romeo/Apotheker: Transferanalyse","Transferhypothese","Transfer-Gegencheck","Transfer präzisieren","Transferargument","Rekursiver Interpretationsprozess","Kapitelabschluss"]),
+ {kind:"finale",id:"finale-welcome",label:"Finale · Einstieg",mode:"welcome"},
+ {kind:"finale",id:"finale-review",label:"Finale · fünf Werkzeuge",mode:"review"},
+ {kind:"finale",id:"finale-synthesis",label:"Finale · Synthese",mode:"synthesis"},
+ {kind:"finale",id:"finale-book",label:"Finale · Regiebuch",mode:"book"},
+ {kind:"finale",id:"finale-closing",label:"Finale · Schlusswort",mode:"closing"},
+ {kind:"finale",id:"finale-complete",label:"Finale · Abschluss",mode:"complete"},
+];
+
+export const reviewTargetById=(id:string)=>reviewTargets.find(target=>target.id===id)??reviewTargets[0];
+export const reviewGroups=[
+ {id:"theatre",label:"Große Bühne",targets:reviewTargets.filter(target=>target.kind==="theatre")},
+ ...(["chapter_01","chapter_02","chapter_03","chapter_04","chapter_05"] as const).map((id,index)=>({id,label:`Kapitel ${index+1}`,targets:reviewTargets.filter(target=>target.kind==="chapter"&&target.chapterId===id)})),
+ {id:"finale",label:"Finale",targets:reviewTargets.filter(target=>target.kind==="finale")},
+];
